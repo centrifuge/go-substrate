@@ -95,7 +95,6 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, meta *types.Metadata, opt
 	}
 
 	payload, err := createPayload(meta, encodedMethod)
-
 	if err != nil {
 		return ErrPayloadCreation.Wrap(err)
 	}
@@ -105,7 +104,6 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, meta *types.Metadata, opt
 	}
 
 	signerPubKey, err := types.NewMultiAddressFromAccountID(signer.PublicKey)
-
 	if err != nil {
 		return ErrMultiAddressCreation.Wrap(err)
 	}
@@ -129,13 +127,48 @@ func (e *Extrinsic) Sign(signer signature.KeyringPair, meta *types.Metadata, opt
 	return nil
 }
 
+func (e *Extrinsic) Decode(decoder scale.Decoder) error {
+	// compact length encoding (1, 2, or 4 bytes) (may not be there for Extrinsics older than Jan 11 2019)
+	_, err := decoder.DecodeUintCompact()
+	if err != nil {
+		return err
+	}
+
+	// version, signature bitmask (1 byte)
+	err = decoder.Decode(&e.Version)
+	if err != nil {
+		return err
+	}
+
+	// signature
+	if e.IsSigned() {
+		if e.Type() != Version4 {
+			return fmt.Errorf("unsupported extrinsic version: %v (isSigned: %v, type: %v)", e.Version, e.IsSigned(),
+				e.Type())
+		}
+
+		err = decoder.Decode(&e.Signature)
+		if err != nil {
+			return err
+		}
+	}
+
+	// call
+	err = decoder.Decode(&e.Method)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (e Extrinsic) Encode(encoder scale.Encoder) error {
 	if e.Type() != Version4 {
 		return fmt.Errorf("unsupported extrinsic version: %v (isSigned: %v, type: %v)", e.Version, e.IsSigned(),
 			e.Type())
 	}
 
-	var bb = bytes.Buffer{}
+	bb := bytes.Buffer{}
 	tempEnc := scale.NewEncoder(&bb)
 
 	err := tempEnc.Encode(e.Version)
