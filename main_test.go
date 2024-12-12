@@ -17,6 +17,7 @@
 package gsrpc_test
 
 import (
+	"errors"
 	"fmt"
 	"github.com/centrifuge/go-substrate-rpc-client/v4/types/extrinsic"
 	"math/big"
@@ -207,7 +208,7 @@ func Example_makeASimpleTransfer() {
 	// 1 unit of transfer
 	bal, ok := new(big.Int).SetString("100000000000000", 10)
 	if !ok {
-		panic(fmt.Errorf("failed to convert balance"))
+		panic(errors.New("failed to convert balance"))
 	}
 
 	c, err := types.NewCall(meta, "Balances.transfer", bob, types.NewUCompact(bal))

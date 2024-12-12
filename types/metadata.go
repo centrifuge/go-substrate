@@ -17,6 +17,7 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"hash"
 	"strings"
@@ -240,7 +241,7 @@ func (m *Metadata) FindConstantValue(module string, constantName string) ([]byte
 	case 14:
 		return m.AsMetadataV14.FindConstantValue(txtModule, txtConstantName)
 	default:
-		return nil, fmt.Errorf("unsupported metadata version")
+		return nil, errors.New("unsupported metadata version")
 	}
 }
 
@@ -265,7 +266,7 @@ func (m *Metadata) FindCallIndex(call string) (CallIndex, error) {
 	case 14:
 		return m.AsMetadataV14.FindCallIndex(call)
 	default:
-		return CallIndex{}, fmt.Errorf("unsupported metadata version")
+		return CallIndex{}, errors.New("unsupported metadata version")
 	}
 }
 
@@ -290,7 +291,7 @@ func (m *Metadata) FindEventNamesForEventID(eventID EventID) (Text, Text, error)
 	case 14:
 		return m.AsMetadataV14.FindEventNamesForEventID(eventID)
 	default:
-		return "", "", fmt.Errorf("unsupported metadata version")
+		return "", "", errors.New("unsupported metadata version")
 	}
 }
 
@@ -315,7 +316,7 @@ func (m *Metadata) FindStorageEntryMetadata(module string, fn string) (StorageEn
 	case 14:
 		return m.AsMetadataV14.FindStorageEntryMetadata(module, fn)
 	default:
-		return nil, fmt.Errorf("unsupported metadata version")
+		return nil, errors.New("unsupported metadata version")
 	}
 }
 
@@ -351,5 +352,5 @@ func DefaultPlainHasher(entry StorageEntryMetadata) (hash.Hash, error) {
 		return xxhash.New128(nil), nil
 	}
 
-	return nil, fmt.Errorf("Hasher() is only to be called on a Plain entry")
+	return nil, errors.New("Hasher() is only to be called on a Plain entry")
 }
