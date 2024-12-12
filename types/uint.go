@@ -18,6 +18,7 @@ package types
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 
@@ -237,7 +238,7 @@ func (i U256) Encode(encoder scale.Encoder) error {
 // length could hold
 func BigIntToUintBytes(i *big.Int, bytelen int) ([]byte, error) {
 	if i.Sign() < 0 {
-		return nil, fmt.Errorf("cannot encode a negative big.Int into an unsigned integer")
+		return nil, errors.New("cannot encode a negative big.Int into an unsigned integer")
 	}
 
 	max := big.NewInt(0).Exp(big.NewInt(2), big.NewInt(int64(bytelen*8)), nil)
